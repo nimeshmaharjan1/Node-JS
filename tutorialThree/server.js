@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3500;
 const { logger } = require("./middleware/logEvents");
 const cors = require("cors");
 const errorHandler = require("./middleware/errorHandler");
+
 //CORS: Cross Origin Resource Sharing
 //custom middleware logger
 // app.use((req, res, next) => { //?as this can be cleaned up and be created as a custom middleware in the logEvent as a importable function.
@@ -43,27 +44,35 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 /* Telling the server to use the public folder as a static folder. */
-app.use(express.static(path.join(__dirname, "/public")));
+app.use("/", express.static(path.join(__dirname, "/public")));
+app.use("/subdir", express.static(path.join(__dirname, "/public")));
+
+// app.use("/", require("./routes/root"));
+//!ROUTES
+app.use("/", require("./routes/root"));
+app.use("/subdir", require("./routes/subdir")); //* provide the route that were providing the router for
+//? So this router will route the request coming to the subdir route instead of the below provided routers
+
+app.use("/employees", require("./routes/api/employees"));
 
 //* making .html optional
 const HTML = "(.html)?";
 
-/*
-! begin with a slash = ^
-! end with a slash = $
-! or = |
-*/
-app.get(
-  `^/$|index${HTML}`,
-  (request, response) =>
-    response.sendFile(path.join(__dirname, "views", "index.html")) //? send file from server to the client
-);
-app.get(`/new-page${HTML}`, (request, response) =>
-  response.sendFile(path.join(__dirname, "views", "new-page.html"))
-);
-app.get(`/old-page${HTML}`, (request, response) =>
-  response.redirect(301, "/new-page.html")
-);
+//? begin with a slash = ^
+//? end with a slash = $
+//? or = |
+
+// app.get(
+//   `^/$|index${HTML}`,
+//   (request, response) =>
+//     response.sendFile(path.join(__dirname, "views", "index.html")) //? send file from server to the client
+// );
+// app.get(`/new-page${HTML}`, (request, response) =>
+//   response.sendFile(path.join(__dirname, "views", "new-page.html"))
+// );
+// app.get(`/old-page${HTML}`, (request, response) =>
+//   response.redirect(301, "/new-page.html")
+// );
 
 //! ROUTE HANDLERS
 app.get(
