@@ -1,5 +1,5 @@
 //? THREE TYPES OF MIDDLEWARE BUILT-in, CUSTOM AND 3RD PARTY
-
+//? require('crypto').randomBytes(64).toString('hex') for access token secret .env file
 const express = require("express");
 const app = express();
 const path = require("path");
