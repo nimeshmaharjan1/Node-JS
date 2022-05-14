@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3500;
 const { logger } = require("./middleware/logEvents");
 const cors = require("cors");
 const errorHandler = require("./middleware/errorHandler");
-
+const corsOptions = require("./config/corsOptions");
 //CORS: Cross Origin Resource Sharing
 //custom middleware logger
 // app.use((req, res, next) => { //?as this can be cleaned up and be created as a custom middleware in the logEvent as a importable function.
@@ -21,19 +21,6 @@ const errorHandler = require("./middleware/errorHandler");
 
 app.use(logger);
 
-/* A whitelist of the allowed origins. */
-const whitelist = ["http://localhost:3500"];
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS policy."));
-    }
-  },
-  optionsSuccessStatus: 200,
-};
-
 app.use(cors(corsOptions));
 //!middleware app.use to use middlewares, applies to all urls
 //?Its for handling url endcoded data or form data. To pull data out as a parameter
@@ -45,15 +32,16 @@ app.use(express.json());
 
 /* Telling the server to use the public folder as a static folder. */
 app.use("/", express.static(path.join(__dirname, "/public")));
-app.use("/subdir", express.static(path.join(__dirname, "/public")));
 
 // app.use("/", require("./routes/root"));
 //!ROUTES
 app.use("/", require("./routes/root"));
-app.use("/subdir", require("./routes/subdir")); //* provide the route that were providing the router for
-//? So this router will route the request coming to the subdir route instead of the below provided routers
+// app.use("/subdir", require("./routes/subdir")); //* provide the route that were providing the router for
+// //? So this router will route the request coming to the subdir route instead of the below provided routers
 
 app.use("/employees", require("./routes/api/employees"));
+app.use("/register", require("./routes/register"));
+app.use("/login", require("./routes/authentication"));
 
 //* making .html optional
 const HTML = "(.html)?";
