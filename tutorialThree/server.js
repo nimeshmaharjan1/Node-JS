@@ -8,6 +8,9 @@ const { logger } = require("./middleware/logEvents");
 const cors = require("cors");
 const errorHandler = require("./middleware/errorHandler");
 const corsOptions = require("./config/corsOptions");
+const verifyJWT = require("./middleware/verifyJWT");
+const cookieParser = require("cookie-parser");
+const credentials = require("./middleware/credentials");
 //CORS: Cross Origin Resource Sharing
 //custom middleware logger
 // app.use((req, res, next) => { //?as this can be cleaned up and be created as a custom middleware in the logEvent as a importable function.
@@ -20,7 +23,7 @@ const corsOptions = require("./config/corsOptions");
 // });
 
 app.use(logger);
-
+app.use(credentials);
 app.use(cors(corsOptions));
 //!middleware app.use to use middlewares, applies to all urls
 //?Its for handling url endcoded data or form data. To pull data out as a parameter
@@ -29,6 +32,9 @@ app.use(express.urlencoded({ extended: false }));
 
 //For JSON
 app.use(express.json());
+
+//Middleware for cookieParser
+app.use(cookieParser());
 
 /* Telling the server to use the public folder as a static folder. */
 app.use("/", express.static(path.join(__dirname, "/public")));
@@ -39,9 +45,13 @@ app.use("/", require("./routes/root"));
 // app.use("/subdir", require("./routes/subdir")); //* provide the route that were providing the router for
 // //? So this router will route the request coming to the subdir route instead of the below provided routers
 
-app.use("/employees", require("./routes/api/employees"));
 app.use("/register", require("./routes/register"));
-app.use("/login", require("./routes/authentication"));
+app.use("/auth", require("./routes/authentication"));
+app.use("/refresh", require("./routes/refresh")); //refresh token will access once the new access token has expired
+app.use("/logout", require("./routes/logout")); //refresh token will access once the new access token has expired
+
+app.use(verifyJWT);
+app.use("/employees", require("./routes/api/employees"));
 
 //* making .html optional
 const HTML = "(.html)?";
